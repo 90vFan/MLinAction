@@ -15,8 +15,8 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
     return dataMat
 
 def binSplitDataSet(dataSet, feature, value):
-    mat0 = dataSet[nonzero(dataSet[:,feature] > value)[0],:][0]
-    mat1 = dataSet[nonzero(dataSet[:,feature] <= value)[0],:][0]
+    mat0 = dataSet[nonzero(dataSet[:,feature] > value)[0],:]
+    mat1 = dataSet[nonzero(dataSet[:,feature] <= value)[0],:]
     return mat0,mat1
 
 def regLeaf(dataSet):#returns the value used for each leaf
@@ -53,9 +53,11 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
     m,n = shape(dataSet)
     #the choice of the best feature is driven by Reduction in RSS error from mean
     S = errType(dataSet)
-    bestS = inf; bestIndex = 0; bestValue = 0
+    bestS = 0; bestIndex = 0; bestValue = 0
     for featIndex in range(n-1):
-        for splitVal in set(dataSet[:,featIndex]):
+        # for splitVal in set(dataSet[:,featIndex]):
+        for splitVal in mat(dataSet[:, featIndex]).flatten().tolist():
+
             mat0, mat1 = binSplitDataSet(dataSet, featIndex, splitVal)
             if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN): continue
             newS = errType(mat0) + errType(mat1)
@@ -134,3 +136,16 @@ def createForeCast(tree, testData, modelEval=regTreeEval):
     for i in range(m):
         yHat[i,0] = treeForeCast(tree, mat(testData[i]), modelEval)
     return yHat
+
+if __name__ == '__main__':
+    # testMat = mat(eye(4))
+    # print(testMat)
+    
+    # mat0, mat1 = binSplitDataSet(testMat, 1, 0.5)
+    # print(mat0)
+    # print(mat1)
+    
+    myDat = loadDataSet('ex00.txt')
+    myMat = mat(myDat)
+    retTree = createTree(myMat)
+    print(retTree)
